@@ -218,7 +218,7 @@ static COMMAND_LIST cmdline_commands[] =
    { CommandGLCapture, "-glcapture","gc", "Capture the GL frame-buffer instead of the camera image", 0},
    { CommandBurstMode, "-burst",    "bm", "Enable 'burst capture mode'", 0},
    { CommandDateTime,  "-datetime",  "dt", "Replace output pattern (%d) with DateTime (MonthDayHourMinSec)", 0},
-   { CommandTimeMillis,  "-timemillis",  "dtm", "Replace output pattern (%d) with Time (HourMinSecMillis)", 0},
+   { CommandTimeMillis,  "-timemillis",  "tm", "Replace output pattern (%d) with Time (HourMinSecMillis)", 0},
    { CommandTimeStamp, "-timestamp", "ts", "Replace output pattern (%d) with unix timestamp (seconds since 1970)", 0},
    { CommandTimeStampMillis, "-timestampmillis", "tsm", "Replace output pattern (%d) with unix timestamp (milliseconds since 1970)", 0},
    { CommandFrameStart,"-framestart","fs",  "Starting frame number in output pattern(%d)", 1},
@@ -1840,7 +1840,7 @@ int main(int argc, const char **argv)
                   frame += timeinfo->tm_sec;
                }
 
-               if (state.datetime)
+               if (state.timemillis)
               {
                  time_t rawtime;
                  struct tm *timeinfo;
