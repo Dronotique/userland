@@ -144,6 +144,7 @@ typedef struct
    int burstCaptureMode;               /// Enable burst mode
    int datetime;                       /// Use DateTime instead of frame#
    int timestamp;                      /// Use timestamp instead of frame#
+   long timestampmillis;                /// Use timestamp in millis instead of frame#
    int restart_interval;               /// JPEG restart interval. 0 for none.
 
    RASPIPREVIEW_PARAMETERS preview_parameters;    /// Preview setup parameters
@@ -192,6 +193,7 @@ enum
    CommandBurstMode,
    CommandDateTime,
    CommandTimeStamp,
+   CommandTimeStampMillis,
    CommandFrameStart,
    CommandRestartInterval,
 };
@@ -215,6 +217,7 @@ static COMMAND_LIST cmdline_commands[] =
    { CommandBurstMode, "-burst",    "bm", "Enable 'burst capture mode'", 0},
    { CommandDateTime,  "-datetime",  "dt", "Replace output pattern (%d) with DateTime (MonthDayHourMinSec)", 0},
    { CommandTimeStamp, "-timestamp", "ts", "Replace output pattern (%d) with unix timestamp (seconds since 1970)", 0},
+   { CommandTimeStampMillis, "-timestampmillis", "tsm", "Replace output pattern (%d) with unix timestamp (milliseconds since 1970)", 0},
    { CommandFrameStart,"-framestart","fs",  "Starting frame number in output pattern(%d)", 1},
    { CommandRestartInterval, "-restart","rs","JPEG Restart interval (default of 0 for none)", 1},
 };
@@ -299,6 +302,7 @@ static void default_status(RASPISTILL_STATE *state)
    state->burstCaptureMode=0;
    state->datetime = 0;
    state->timestamp = 0;
+   state->timestampmillis = 0;
    state->restart_interval = 0;
 
    // Setup preview window defaults
@@ -488,6 +492,10 @@ static int parse_cmdline(int argc, const char **argv, RASPISTILL_STATE *state)
       case CommandTimeStamp: // use timestamp
          state->timestamp = 1;
          break;
+
+      case CommandTimeStampMillis: // use timestamp
+               state->timestampmillis = 1;
+               break;
 
       case CommandTimeout: // Time to run viewfinder for before taking picture, in seconds
       {
@@ -1825,6 +1833,14 @@ int main(int argc, const char **argv)
                if (state.timestamp)
                {
                   frame = (int)time(NULL);
+               }
+
+               if (state.timestampmillis)
+               {
+                   struct timeval tp;
+                   gettimeofday(&tp, NULL);
+                   long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+                   frame = ms;
                }
 
                // Open the file
