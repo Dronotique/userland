@@ -1407,7 +1407,7 @@ static void store_exif_tag(RASPISTILL_STATE *state, const char *exif_tag)
  * @return Returns a MMAL_STATUS_T giving result of operation
 */
 
-MMAL_STATUS_T create_filenames(char** finalName, char** tempName, char * pattern, int frame)
+MMAL_STATUS_T create_filenames(char** finalName, char** tempName, char * pattern, long frame)
 {
    *finalName = NULL;
    *tempName = NULL;
@@ -1430,7 +1430,7 @@ MMAL_STATUS_T create_filenames(char** finalName, char** tempName, char * pattern
  * @param [in][out] frame The last frame number, adjusted to next frame number on output
  * @return !0 if to continue, 0 if reached end of run
  */
-static int wait_for_next_frame(RASPISTILL_STATE *state, int *frame)
+static int wait_for_next_frame(RASPISTILL_STATE *state, long *frame)
 {
    static int64_t complete_time = -1;
    int keep_running = 1;
@@ -1606,7 +1606,7 @@ static int wait_for_next_frame(RASPISTILL_STATE *state, int *frame)
 }
 
 static void rename_file(RASPISTILL_STATE *state, FILE *output_file,
-                        const char *final_filename, const char *use_filename, int frame)
+                        const char *final_filename, const char *use_filename, long frame)
 {
    MMAL_STATUS_T status;
 
@@ -1801,7 +1801,8 @@ int main(int argc, const char **argv)
          }
          else
          {
-            long frame, keep_looping = 1;
+            long frame = 1;
+            int keep_looping = 1;
             FILE *output_file = NULL;
             char *use_filename = NULL;      // Temporary filename while image being written
             char *final_filename = NULL;    // Name that file gets once writing complete
