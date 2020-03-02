@@ -1848,8 +1848,6 @@ int main(int argc, const char **argv)
                  time(&rawtime);
                  timeinfo = localtime(&rawtime);
 
-                 frame += timeinfo->tm_hour;
-                 frame *= 100;
                  frame += timeinfo->tm_min;
                  frame *= 100;
                  frame += timeinfo->tm_sec;
