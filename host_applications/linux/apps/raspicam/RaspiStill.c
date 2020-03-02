@@ -143,6 +143,7 @@ typedef struct
    int glCapture;                      /// Save the GL frame-buffer instead of camera output
    int burstCaptureMode;               /// Enable burst mode
    int datetime;                       /// Use DateTime instead of frame#
+   int timemillis;                 /// Use DateTimeMillis instead of frame#
    int timestamp;                      /// Use timestamp instead of frame#
    long timestampmillis;                /// Use timestamp in millis instead of frame#
    int restart_interval;               /// JPEG restart interval. 0 for none.
@@ -192,6 +193,7 @@ enum
    CommandGLCapture,
    CommandBurstMode,
    CommandDateTime,
+   CommandTimeMillis,
    CommandTimeStamp,
    CommandTimeStampMillis,
    CommandFrameStart,
@@ -216,6 +218,7 @@ static COMMAND_LIST cmdline_commands[] =
    { CommandGLCapture, "-glcapture","gc", "Capture the GL frame-buffer instead of the camera image", 0},
    { CommandBurstMode, "-burst",    "bm", "Enable 'burst capture mode'", 0},
    { CommandDateTime,  "-datetime",  "dt", "Replace output pattern (%d) with DateTime (MonthDayHourMinSec)", 0},
+   { CommandTimeMillis,  "-timemillis",  "dtm", "Replace output pattern (%d) with Time (HourMinSecMillis)", 0},
    { CommandTimeStamp, "-timestamp", "ts", "Replace output pattern (%d) with unix timestamp (seconds since 1970)", 0},
    { CommandTimeStampMillis, "-timestampmillis", "tsm", "Replace output pattern (%d) with unix timestamp (milliseconds since 1970)", 0},
    { CommandFrameStart,"-framestart","fs",  "Starting frame number in output pattern(%d)", 1},
@@ -301,6 +304,7 @@ static void default_status(RASPISTILL_STATE *state)
    state->glCapture = 0;
    state->burstCaptureMode=0;
    state->datetime = 0;
+   state->timemillis = 0;
    state->timestamp = 0;
    state->timestampmillis = 0;
    state->restart_interval = 0;
@@ -488,6 +492,10 @@ static int parse_cmdline(int argc, const char **argv, RASPISTILL_STATE *state)
       case CommandDateTime: // use datetime
          state->datetime = 1;
          break;
+
+      case CommandTimeMillis: // use datetime
+           state->timemillis = 1;
+           break;
 
       case CommandTimeStamp: // use timestamp
          state->timestamp = 1;
@@ -1831,6 +1839,29 @@ int main(int argc, const char **argv)
                   frame *= 100;
                   frame += timeinfo->tm_sec;
                }
+
+               if (state.datetime)
+              {
+                 time_t rawtime;
+                 struct tm *timeinfo;
+
+                 time(&rawtime);
+                 timeinfo = localtime(&rawtime);
+
+                 frame += timeinfo->tm_hour;
+                 frame *= 100;
+                 frame += timeinfo->tm_min;
+                 frame *= 100;
+                 frame += timeinfo->tm_sec;
+                 frame *= 1000;
+
+                 //Millisecondes
+                 struct timeval tv;
+                 gettimeofday(&tv, NULL);
+                 frame += (unsigned long long)(tv.tv_usec) / 1000;
+
+              }
+
                if (state.timestamp)
                {
                   frame = (int)time(NULL);
