@@ -1801,7 +1801,7 @@ int main(int argc, const char **argv)
          }
          else
          {
-            int frame, keep_looping = 1;
+            long frame, keep_looping = 1;
             FILE *output_file = NULL;
             char *use_filename = NULL;      // Temporary filename while image being written
             char *final_filename = NULL;    // Name that file gets once writing complete
@@ -1837,10 +1837,15 @@ int main(int argc, const char **argv)
 
                if (state.timestampmillis)
                {
-                   struct timeval tp;
-                   gettimeofday(&tp, NULL);
-                   long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-                   frame = ms;
+                   struct timeval tv;
+
+                   gettimeofday(&tv, NULL);
+
+                   unsigned long long millisecondsSinceEpoch =
+                       (unsigned long long)(tv.tv_sec) * 1000 +
+                       (unsigned long long)(tv.tv_usec) / 1000;
+
+                   frame = millisecondsSinceEpoch;
                }
 
                // Open the file
